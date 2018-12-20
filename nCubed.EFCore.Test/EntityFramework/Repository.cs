@@ -208,5 +208,21 @@ namespace nCubed.EFCore.Test.EntityFramework
             customerRepo.Should().NotBeNull();
             customerRepo.Name.Should().Be("Customer1");
         }
+
+        [Fact]
+        [Trait("Command", "Repository")]
+
+        public void TestExists()
+        {
+            ContactInformation contactInformation1 = new ContactInformation() { Phone = "phone1", Email = "demo1@demo.es" };
+            var customer = new Customer() { Name = "Customer1", ContactInformation = contactInformation1 };
+
+            CustomerRepository customerRepository = new CustomerRepository(new ProjectsContext(dbContextOptions));
+            customerRepository.Add(customer);
+            customerRepository.UnitOfWork.Commit();
+            var exists = customerRepository.Exists(customer, 1);
+
+            exists.Should().Be(true);
+        }
     }
 }
