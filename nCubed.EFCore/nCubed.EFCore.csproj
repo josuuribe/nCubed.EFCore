@@ -5,9 +5,9 @@
     <TargetLatestRuntimePatch>true</TargetLatestRuntimePatch>
     <Authors>Josu Uribe</Authors>
     <Company>GFI</Company>
-    <PackageProjectUrl>https://github.com/josuuribe/nCubed.Core</PackageProjectUrl>
+    <PackageProjectUrl>https://josuuribe.github.io/nCubedCore/</PackageProjectUrl>
     <PackageLicenseUrl>http://www.apache.org/licenses/LICENSE-2.0</PackageLicenseUrl>
-    <RepositoryUrl>https://github.com/josuuribe/nCubed.Core</RepositoryUrl>
+    <RepositoryUrl>https://github.com/josuuribe/nCubedCore</RepositoryUrl>
     <RepositoryType>GitHub</RepositoryType>
     <NeutralLanguage />
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
@@ -16,7 +16,7 @@
     <Description>This is a Fluent API library for the most common EFCore functions using Repository pattern.</Description>
     <PackageId>nCubed.EFCore</PackageId>
     <Product>nCubedCore</Product>
-    <PackageIconUrl>https://josuuribe.github.io/nCubed/images/nCubedCore.ico</PackageIconUrl>
+    <PackageIconUrl>https://josuuribe.github.io/nCubedCore/images/nCubedCore.ico</PackageIconUrl>
     <FileVersion>1.0.0.0</FileVersion>
     <Version>1.0.1</Version>
   </PropertyGroup>
