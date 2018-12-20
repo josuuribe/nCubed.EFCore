@@ -164,5 +164,11 @@ namespace nCubed.EFCore.Extensions
             var context = UnitOfWorkAsDbContext(repository);
             return context.Set<TEntity>().Find(ids);
         }
+
+        public static bool Exists<TEntity>(this IRepository<TEntity> repository, TEntity entity, params object[] ids) where TEntity : class
+        {
+            var context = UnitOfWorkAsDbContext(repository);
+            return context.Set<TEntity>().Find(ids);
+        }
     }
 }
