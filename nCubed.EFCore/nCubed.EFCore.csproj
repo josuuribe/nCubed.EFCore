@@ -16,7 +16,7 @@
     <Description>This is a Fluent API library for the most common EFCore functions using Repository pattern.</Description>
     <PackageId>nCubed.EF.Core</PackageId>
     <Product>nCubed.Core</Product>
-    <PackageIconUrl>https://josuuribe.github.io/nCubed/images/nCubedCore.ico</PackageIconUrl>
+    <PackageIconUrl>https://josuuribe.github.io/nCubed.Core/images/nCubedCore.ico</PackageIconUrl>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="2.2.0" />
