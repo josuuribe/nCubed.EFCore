@@ -14,7 +14,7 @@
     <AssemblyVersion>1.0.0.0</AssemblyVersion>
     <PackageTags>GFI nCubed EFCore .NET Core</PackageTags>
     <Description>This is a Fluent API library for the most common EFCore functions using Repository pattern.</Description>
-    <PackageId>nCubed.Core.EFCore</PackageId>
+    <PackageId>nCubed.EF.Core</PackageId>
     <Product>nCubed.Core</Product>
   </PropertyGroup>
   <ItemGroup>
