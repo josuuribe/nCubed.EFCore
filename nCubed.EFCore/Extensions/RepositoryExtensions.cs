@@ -100,7 +100,7 @@ namespace nCubed.EFCore.Extensions
         {
             var context = UnitOfWorkAsDbContext(repository);
 
-            context.Entry<TEntity>(entity).CurrentValues.SetValues(newValues);
+            context.Entry(entity).CurrentValues.SetValues(newValues);
 
             return repository;
         }
@@ -109,8 +109,8 @@ namespace nCubed.EFCore.Extensions
         {
             var context = UnitOfWorkAsDbContext(repository);
 
-            context.Entry<TEntity>(entity).CurrentValues.SetValues(context.Entry<TEntity>(entity).OriginalValues);
-            context.Entry<TEntity>(entity).State = EntityState.Unchanged;
+            context.Entry(entity).CurrentValues.SetValues(context.Entry<TEntity>(entity).OriginalValues);
+            context.Entry(entity).State = EntityState.Unchanged;
 
             return repository;
         }
@@ -119,8 +119,8 @@ namespace nCubed.EFCore.Extensions
         {
             var context = UnitOfWorkAsDbContext(repository);
 
-            context.Entry<TEntity>(entity).Reload();
-            context.Entry<TEntity>(entity).State = EntityState.Unchanged;
+            context.Entry(entity).Reload();
+            context.Entry(entity).State = EntityState.Unchanged;
 
             return repository;
         }
@@ -129,14 +129,14 @@ namespace nCubed.EFCore.Extensions
         {
             var context = UnitOfWorkAsDbContext(repository);
 
-            return context.Entry<TEntity>(entity).GetDatabaseValues().ToObject() as TEntity;
+            return context.Entry(entity).GetDatabaseValues().ToObject() as TEntity;
         }
 
         public static IRepository<TEntity> Detach<TEntity>(this IRepository<TEntity> repository, TEntity entity) where TEntity : class
         {
             var context = UnitOfWorkAsDbContext(repository);
 
-            context.Entry<TEntity>(entity).State = EntityState.Detached;
+            context.Entry(entity).State = EntityState.Detached;
 
             return repository;
         }
@@ -145,7 +145,7 @@ namespace nCubed.EFCore.Extensions
         {
             var context = UnitOfWorkAsDbContext(repository);
 
-            context.Attach<TEntity>(entity);
+            context.Attach(entity);
 
             return repository;
         }
@@ -154,7 +154,7 @@ namespace nCubed.EFCore.Extensions
         {
             var context = UnitOfWorkAsDbContext(repository);
 
-            context.Update<TEntity>(entity);
+            context.Update(entity);
 
             return repository;
         }

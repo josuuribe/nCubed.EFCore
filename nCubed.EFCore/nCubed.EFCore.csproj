@@ -3,10 +3,27 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <TargetLatestRuntimePatch>true</TargetLatestRuntimePatch>
+    <Authors>Josu Uribe</Authors>
+    <Company>GFI</Company>
+    <PackageProjectUrl>https://github.com/josuuribe/nCubed.Core</PackageProjectUrl>
+    <PackageLicenseUrl>http://www.apache.org/licenses/LICENSE-2.0</PackageLicenseUrl>
+    <RepositoryUrl>https://github.com/josuuribe/nCubed.Core</RepositoryUrl>
+    <RepositoryType>GitHub</RepositoryType>
+    <NeutralLanguage />
+    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
+    <PackageTags>GFI nCubed EFCore .NET Core</PackageTags>
+    <Description>This is a Fluent API library for the most common EFCore functions using Repository pattern.</Description>
+    <PackageId>nCubed.Core.EFCore</PackageId>
+    <Product>nCubed.Core</Product>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="2.2.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="2.2.0" />
+    <PackageReference Include="SourceLink.Create.CommandLine" Version="2.8.3">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
     <PackageReference Include="System.Linq.Dynamic.Core" Version="1.0.9" />
     <PackageReference Include="System.Security.Principal.Windows" Version="4.5.1" />
   </ItemGroup>

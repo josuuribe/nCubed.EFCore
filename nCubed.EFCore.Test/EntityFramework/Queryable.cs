@@ -17,6 +17,9 @@ namespace nCubed.EFCore.Test.EntityFramework
 
         public Queryable()
         {
+            ContactInformation contactInformation = new ContactInformation() { Phone = "phone", Email = "demo@demo.es" };
+            Customer customer = new Customer() { Name = "Customer", ContactInformation = contactInformation };
+
             customerRepository = new CustomerRepository(new ProjectsContext(dbContextOptions));
         }
     }
