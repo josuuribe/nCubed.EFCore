@@ -3,9 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.28307.168
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "nCubed.EFCore", "nCubed.EFCore\nCubed.EFCore.csproj", "{6075F77F-003A-4602-B457-0303B05CAF24}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "nCubed.EFCore", "nCubed.EFCore\nCubed.EFCore.csproj", "{6075F77F-003A-4602-B457-0303B05CAF24}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "nCubed.EFCore.Test", "nCubed.EFCore.Test\nCubed.EFCore.Test.csproj", "{60059BB8-1B69-40C7-AB95-125C33A71109}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "nCubed.EFCore.Test", "nCubed.EFCore.Test\nCubed.EFCore.Test.csproj", "{60059BB8-1B69-40C7-AB95-125C33A71109}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "nCubedConsole", "nCubedConsole\nCubedConsole.csproj", "{0AA4217E-63E7-46F6-8067-F973DA810744}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{60059BB8-1B69-40C7-AB95-125C33A71109}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{60059BB8-1B69-40C7-AB95-125C33A71109}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{60059BB8-1B69-40C7-AB95-125C33A71109}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0AA4217E-63E7-46F6-8067-F973DA810744}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0AA4217E-63E7-46F6-8067-F973DA810744}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0AA4217E-63E7-46F6-8067-F973DA810744}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0AA4217E-63E7-46F6-8067-F973DA810744}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

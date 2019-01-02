@@ -82,9 +82,6 @@ namespace nCubed.EFCore.Test.Fakes
             modelBuilder.CreateAudit();
         }
 
-        public Func<String> UserProvider { get; set; } = () => WindowsIdentity.GetCurrent().Name;
-        public Func<DateTime> TimestampProvider { get; set; } = () => DateTime.UtcNow;
-
         public override int SaveChanges()
         {
             ChangeTracker.FillAudit();
