@@ -1,6 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
   <metadata>
+    <version>1.0.5</version>
     <id>nCubed.EFCore</id>
     <authors>Josu Uribe</authors>
     <owners>Josu Uribe</owners>
