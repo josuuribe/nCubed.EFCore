@@ -6,39 +6,14 @@ using Microsoft.EntityFrameworkCore.ChangeTracking;
 using System.Linq;
 using System.Collections;
 using System.Linq.Expressions;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace nCubed.EFCore.Repositories
 {
     public class UnitOfWork : DbContext, IUnitOfWork
     {
-        //        public DbSet<TEntity> CreateSet<TEntity>()
-        //where TEntity : class
-        //        {
-        //            return base.Set<TEntity>();
-        //        }
-
-        //    public override EntityEntry<TEntity> Attach<TEntity>(TEntity item)
-        //where TEntity : class
-        //    {
-        //        //attach and set as unchanged
-        //        base.Entry<TEntity>(item).State = EntityState.Unchanged;
-        //        return new EntityEntry<TEntity>(item);
-        //    }
-
-        //    public void SetModified<TEntity>(TEntity item)
-        //where TEntity : class
-        //    {
-        //        //this operation also attach item in object state manager
-        //        base.Entry<TEntity>(item).State = EntityState.Modified;
-        //    }
-
-        //    public void ApplyCurrentValues<TEntity>(TEntity original, TEntity current)
-        //where TEntity : class
-        //    {
-        //        //if it is not attached, attach original and set current values
-        //        base.Entry<TEntity>(original).CurrentValues.SetValues(current);
-        //    }
-
         public UnitOfWork() : base()
         {
 
@@ -83,18 +58,49 @@ namespace nCubed.EFCore.Repositories
             }
         }
 
-        public IEnumerable<TEntity> ExecuteQuery<TEntity>(string sqlQuery, params object[] parameters)
+        public IEnumerable<TEntity> ExecuteQuery<TEntity>(string sqlQuery) where TEntity : class, new()
         {
-            // TODO: Use Dapper
-            //return base.Database.SqlQuery<TEntity>(sqlQuery, parameters);
-            return null;
+            List<TEntity> entities = new List<TEntity>();
+            try
+            {
+                using (var query = this.Database.GetDbConnection().CreateCommand())
+                {
+                    query.CommandText = sqlQuery;
+                    this.Database.OpenConnection();
+                    using (var result = query.ExecuteReader())
+                    {
+                        var properties = typeof(TEntity).GetProperties();
+                        while (result.Read())
+                        {
+                            TEntity entity = new TEntity();
+                            var values = new object[result.FieldCount];
+                            result.GetValues(values);
+                            for (int i = 0; i < result.FieldCount; i++)
+                            {
+                                var columnName = result.GetName(i);
+                                var property = properties.FirstOrDefault(p => p.Name.ToLower() == columnName.ToLower());
+                                if (property != null && !(values[i] is System.DBNull))
+                                    property.SetValue(entity, values[i]);
+                            }
+                            entities.Add(entity);
+                        }
+                    }
+                }
+            }
+            catch (ArgumentOutOfRangeException aore)
+            {
+                throw new ArgumentException($"Wrong Sql Query, some fields not found {sqlQuery}", aore);
+            }
+            finally
+            {
+                this.Database.CloseConnection();
+            }
+            return entities;
         }
 
         public int ExecuteCommand(string sqlCommand, params object[] parameters)
         {
-            // TODO: Use Dapper
-            //return base.Database.ExecuteSqlCommand(sqlCommand, parameters);
-            return 0;
+            return this.Database.ExecuteSqlCommand(sqlCommand, parameters);
         }
 
         public void Reset()
@@ -112,6 +118,21 @@ namespace nCubed.EFCore.Repositories
         public TContext Context<TContext>() where TContext : DbContext
         {
             return this as TContext;
+        }
+
+        public IEnumerable GetModifiedEntities()
+        {
+            return this.ChangeTracker.Entries().Where(e => e.State == EntityState.Modified).Select(o => o.Entity);
+        }
+
+        public IEnumerable GetAddedEntities()
+        {
+            return this.ChangeTracker.Entries().Where(e => e.State == EntityState.Added).Select(o => o.Entity);
+        }
+
+        public IEnumerable GetDeletedEntities()
+        {
+            return this.ChangeTracker.Entries().Where(e => e.State == EntityState.Deleted).Select(o => o.Entity);
         }
     }
 }

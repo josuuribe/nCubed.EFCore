@@ -11,7 +11,7 @@ namespace nCubed.EFCore.Test.Infrastructure.Mappings
     {
         public void Configure(EntityTypeBuilder<Resource> builder)
         {
-            builder.ToTable("RESOURCE");
+            builder.ToTable("RESOURCES");
             builder.HasKey(c => c.ResourceId);
             builder.Property(c => c.ResourceId).HasColumnName("RESOURCE_ID");
 

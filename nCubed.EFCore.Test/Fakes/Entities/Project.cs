@@ -8,7 +8,7 @@ namespace nCubed.EFCore.Test.Entities
 {
     public class Project : IAuditable
     {
-        public int ProjectId { get; set; }
+        public long ProjectId { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
         public DateTime? End { get; set; }

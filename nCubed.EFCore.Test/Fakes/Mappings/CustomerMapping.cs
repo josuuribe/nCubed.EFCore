@@ -11,7 +11,7 @@ namespace nCubed.EFCore.Test.Infrastructure.Mappings
     {
         public void Configure(EntityTypeBuilder<Customer> builder)
         {
-            builder.ToTable("CUSTOMER");
+            builder.ToTable("CUSTOMERS");
             builder.HasKey(c => c.CustomerId);
             builder.Property(c => c.CustomerId).HasColumnName("CUSTOMER_ID");
 

@@ -12,8 +12,8 @@ namespace nCubed.EFCore.Behaviours.Auditable
             this.CreatedAtName = "CREATED_AT";
             this.UpdatedAtName = "UPDATED_AT";
             this.UpdatedByName = "UPDATED_BY";
-            Func<DateTime> now = () => DateTime.UtcNow;
-            Func<string> user = () => System.Security.Principal.WindowsIdentity.GetCurrent().Name;
+            DateTime now() => DateTime.UtcNow;
+            string user() => System.Security.Principal.WindowsIdentity.GetCurrent().Name;
             this.CreatedAtAction = now;
             this.CreatedByAction = user;
             this.UpdatedAtAction = now;

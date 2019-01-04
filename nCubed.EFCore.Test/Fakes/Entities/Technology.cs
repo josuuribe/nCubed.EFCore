@@ -6,7 +6,7 @@ namespace nCubed.EFCore.Test.Entities
 {
     public class Technology
     {
-        public int TechnologyId { get; set; }
+        public long TechnologyId { get; set; }
         public string Name { get; set; }
         public ICollection<TechnologyResource> TechnologyResources { get; private set; } = new HashSet<TechnologyResource>();
 

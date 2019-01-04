@@ -6,7 +6,7 @@ namespace nCubed.EFCore.Test.Entities
 {
     public class Customer: IAuditable
     {
-        public int CustomerId { get; set; }
+        public long CustomerId { get; set; }
         public string Name { get; set; }
         public ContactInformation ContactInformation { get; set; }
         // Many To One, other side

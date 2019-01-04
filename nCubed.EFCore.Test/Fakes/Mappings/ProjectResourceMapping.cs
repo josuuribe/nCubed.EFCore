@@ -11,10 +11,10 @@ namespace nCubed.EFCore.Test.Infrastructure.Mappings
     {
         public void Configure(EntityTypeBuilder<ProjectResource> builder)
         {
-            builder.ToTable("PROJECT_RESOURCE");
+            builder.ToTable("PROJECT_RESOURCES");
 
-            builder.Property<int>("PROJECT_ID");
-            builder.Property<int>("RESOURCE_ID");
+            builder.Property<long>("PROJECT_ID");
+            builder.Property<long>("RESOURCE_ID");
 
             builder.HasKey("PROJECT_ID", "RESOURCE_ID");
 

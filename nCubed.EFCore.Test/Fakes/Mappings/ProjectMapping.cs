@@ -11,7 +11,7 @@ namespace nCubed.EFCore.Test.Infrastructure.Mappings
     {
         public void Configure(EntityTypeBuilder<Project> builder)
         {
-            builder.ToTable("PROJECT");
+            builder.ToTable("PROJECTS");
             builder.HasKey(c => c.ProjectId);
 
             builder.Property(c => c.ProjectId).HasColumnName("PROJECT_ID");
@@ -20,7 +20,7 @@ namespace nCubed.EFCore.Test.Infrastructure.Mappings
             builder.Property(c => c.End).HasColumnName("END_DATE");
             builder.Property(c => c.Start).IsRequired().HasColumnName("START_DATE");
 
-            builder.Property<int>("CUSTOMER_ID");
+            builder.Property<long>("CUSTOMER_ID");
 
             builder.HasMany(c => c.ProjectResources).WithOne(c => c.Project).HasForeignKey("PROJECT_ID");
             builder.HasOne(c => c.ProjectDetail).WithOne(C => C.Project);

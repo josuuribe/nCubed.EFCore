@@ -14,9 +14,18 @@ namespace nCubed.EFCore.Test.EntityFramework
 {
     public class UnitOfWork : Context
     {
-        public UnitOfWork() { }
+        ProjectsContext projectsContext = null;
+        CustomerRepository customerRepository = null;
+        TechnologyRepository technologyRepository = null;
+        public UnitOfWork()
+        {
+            projectsContext = new ProjectsContext(dbContextOptions);
+            customerRepository = new CustomerRepository(projectsContext);
+            technologyRepository = new TechnologyRepository(projectsContext);
+        }
 
         [Fact]
+        [Trait("Command", "UnitOfWork")]
         public void TestTrackedEntitiesByType()
         {
             ContactInformation contactInformation1 = new ContactInformation() { Phone = "phone1", Email = "demo1@demo.es" };
@@ -26,12 +35,9 @@ namespace nCubed.EFCore.Test.EntityFramework
             Technology technology = new Technology();
             technology.Name = "Name";
 
-            var context = new ProjectsContext(dbContextOptions);
-
-            CustomerRepository customerRepository = new CustomerRepository(context);
             customerRepository.Add(customer1);
             customerRepository.Add(customer2);
-            TechnologyRepository technologyRepository = new TechnologyRepository(context);
+
             technologyRepository.Add(technology);
 
             var customersTracked = customerRepository.UnitOfWork.Local<Customer>();
@@ -42,6 +48,7 @@ namespace nCubed.EFCore.Test.EntityFramework
         }
 
         [Fact]
+        [Trait("Command", "UnitOfWork")]
         public void TestTrackedEntities()
         {
             ContactInformation contactInformation1 = new ContactInformation() { Phone = "phone1", Email = "demo1@demo.es" };
@@ -53,10 +60,8 @@ namespace nCubed.EFCore.Test.EntityFramework
 
             var context = new ProjectsContext(dbContextOptions);
 
-            CustomerRepository customerRepository = new CustomerRepository(context);
             customerRepository.Add(customer1);
             customerRepository.Add(customer2);
-            TechnologyRepository technologyRepository = new TechnologyRepository(context);
             technologyRepository.Add(technology);
 
             var customersTracked = customerRepository.UnitOfWork.Local();
@@ -72,14 +77,13 @@ namespace nCubed.EFCore.Test.EntityFramework
         }
 
         [Fact]
+        [Trait("Command", "UnitOfWork")]
         public void TestReset()
         {
             ContactInformation contactInformation1 = new ContactInformation() { Phone = "phone1", Email = "demo1@demo.es" };
             var customer1 = new Customer() { Name = "Customer1", ContactInformation = contactInformation1 };
 
 
-            ProjectsContext projectsContext = new ProjectsContext(dbContextOptions);
-            CustomerRepository customerRepository = new CustomerRepository(projectsContext);
             customerRepository.Add(customer1);
             customerRepository.UnitOfWork.Commit();
 
@@ -89,6 +93,76 @@ namespace nCubed.EFCore.Test.EntityFramework
 
             customer1.Name.Should().Be("Customer1", "Name different.");
             customerRepository.UnitOfWork.Local<Customer>().Should().BeEmpty();
+        }
+
+        [Fact]
+        [Trait("Command", "UnitOfWork")]
+        public void TestQuery()
+        {
+            ContactInformation contactInformation1 = new ContactInformation() { Phone = "phone1", Email = "demo1@demo.es" };
+            var customer1 = new Customer() { Name = "Customer1", ContactInformation = contactInformation1 };
+            ContactInformation contactInformation2 = new ContactInformation() { Phone = "phone2", Email = "demo2@demo.es" };
+            var customer2 = new Customer() { Name = "Customer2", ContactInformation = contactInformation2 };
+
+            var customers = new List<Customer>() { customer1, customer2 };
+
+            customerRepository.AddRange(customers);
+            customerRepository.UnitOfWork.Commit();
+
+            var customerRepos = customerRepository.UnitOfWork.ExecuteQuery<Customer>("SELECT CUSTOMER_ID as CustomerId, NAME as Name, PHONE as Phone, EMAIL as email FROM CUSTOMERS");
+
+            customerRepos.Should().NotBeEmpty()
+                    .And.HaveCount(2)
+                    .And.ContainItemsAssignableTo<Customer>()
+                    .And.Equal(customers, (c1, c2) => c1.Name == c2.Name);
+        }
+
+        [Fact]
+        [Trait("Command", "UnitOfWork")]
+        public void TestMarkAsAdded()
+        {
+            ContactInformation contactInformation1 = new ContactInformation() { Phone = "phone1", Email = "demo1@demo.es" };
+            var customer = new Customer() { Name = "Customer1", ContactInformation = contactInformation1 };
+
+            customerRepository.Add(customer);
+            var updates = projectsContext.GetAddedEntities();
+
+            updates.Should().NotBeEmpty()
+                .And.HaveCount(2);
+        }
+
+        [Fact]
+        [Trait("Command", "UnitOfWork")]
+        public void TestMarkAsModified()
+        {
+            ContactInformation contactInformation1 = new ContactInformation() { Phone = "phone1", Email = "demo1@demo.es" };
+            var customer = new Customer() { Name = "Customer1", ContactInformation = contactInformation1 };
+
+            customerRepository.Track(customer);
+            customerRepository.UnitOfWork.Commit();
+            var customerRepo = customerRepository.Find(1L);
+            customerRepo.Name = "updated";
+            var updates = projectsContext.GetModifiedEntities();
+
+            updates.Should().NotBeEmpty()
+                .And.HaveCount(1);
+        }
+
+        [Fact]
+        [Trait("Command", "UnitOfWork")]
+        public void TestMarkAsDeleted()
+        {
+            ContactInformation contactInformation1 = new ContactInformation() { Phone = "phone1", Email = "demo1@demo.es" };
+            var customer = new Customer() { Name = "Customer1", ContactInformation = contactInformation1 };
+
+            customerRepository.Track(customer);
+            customerRepository.UnitOfWork.Commit();
+            var customerRepo = customerRepository.Find(1L);
+            customerRepository.Delete(customerRepo);
+            var updates = projectsContext.GetDeletedEntities();
+
+            updates.Should().NotBeEmpty()
+                .And.HaveCount(1);
         }
     }
 }

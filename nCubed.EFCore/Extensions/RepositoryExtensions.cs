@@ -150,7 +150,7 @@ namespace nCubed.EFCore.Extensions
             return repository;
         }
 
-        public static IRepository<TEntity> MarkAsModified<TEntity>(this IRepository<TEntity> repository, TEntity entity) where TEntity : class
+        public static IRepository<TEntity> Track<TEntity>(this IRepository<TEntity> repository, TEntity entity) where TEntity : class
         {
             var context = UnitOfWorkAsDbContext(repository);
 
@@ -159,8 +159,10 @@ namespace nCubed.EFCore.Extensions
             return repository;
         }
 
-        public static TEntity Find<TEntity>(this IRepository<TEntity> repository, TEntity entity, params object[] ids) where TEntity : class
+        public static TEntity Find<TEntity>(this IRepository<TEntity> repository, params object[] ids) where TEntity : class
         {
+            if (ids.Length == 0)
+                throw new ArgumentException($"{nameof(ids)} should not be empty");
             var context = UnitOfWorkAsDbContext(repository);
             return context.Set<TEntity>().Find(ids);
         }
@@ -169,6 +171,24 @@ namespace nCubed.EFCore.Extensions
         {
             var context = UnitOfWorkAsDbContext(repository);
             return context.Set<TEntity>().Find(ids) != null;
+        }
+
+        public static IEnumerable<TEntity> GetModified<TEntity>(this IRepository<TEntity> repository) where TEntity : class
+        {
+            var context = UnitOfWorkAsDbContext(repository);
+            return context.ChangeTracker.Entries<TEntity>().Where(e => e.State == EntityState.Modified).Select(o => o.Entity);
+        }
+
+        public static IEnumerable<TEntity> GetAdded<TEntity>(this IRepository<TEntity> repository) where TEntity : class
+        {
+            var context = UnitOfWorkAsDbContext(repository);
+            return context.ChangeTracker.Entries<TEntity>().Where(e => e.State == EntityState.Added).Select(o => o.Entity);
+        }
+
+        public static IEnumerable<TEntity> GetDeleted<TEntity>(this IRepository<TEntity> repository) where TEntity : class
+        {
+            var context = UnitOfWorkAsDbContext(repository);
+            return context.ChangeTracker.Entries<TEntity>().Where(e => e.State == EntityState.Deleted).Select(o => o.Entity);
         }
     }
 }

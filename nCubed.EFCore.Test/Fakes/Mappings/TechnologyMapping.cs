@@ -12,7 +12,7 @@ namespace nCubed.EFCore.Test.Infrastructure.Mappings
     {
         public void Configure(EntityTypeBuilder<Technology> builder)
         {
-            builder.ToTable("TECHNOLOGY");
+            builder.ToTable("TECHNOLOGIES");
             builder.HasKey(c => c.TechnologyId);
             builder.Property(c => c.TechnologyId).HasColumnName("TECHNOLOGY_ID");
 

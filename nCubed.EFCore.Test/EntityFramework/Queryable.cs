@@ -33,7 +33,7 @@ namespace nCubed.EFCore.Test.EntityFramework
             customerRepository = new CustomerRepository(new ProjectsContext(dbContextOptions));
             customerRepository.Add(customer1).Add(customer2).UnitOfWork.Commit();
 
-            var result = customerRepository.Set().Between<Customer, int>((c) => c.CustomerId, 0, 10);
+            var result = customerRepository.Set().Between((c) => c.CustomerId, 0, 10);
 
             result.Should().NotBeNull()
                 .And.HaveCount(2)
