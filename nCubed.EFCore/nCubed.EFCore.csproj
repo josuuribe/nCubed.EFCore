@@ -21,13 +21,13 @@
     <Version>1.0.</Version>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="1.0.0" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="1.1.0" />
-    <PackageReference Include="SourceLink.Create.CommandLine" Version="1.0.0">
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="2.2.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="2.2.0" />
+    <PackageReference Include="SourceLink.Create.CommandLine" Version="2.8.3">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="System.Linq.Dynamic.Core" Version="1.0.0" />
-    <PackageReference Include="System.Security.Principal.Windows" Version="1.0.0" />
+    <PackageReference Include="System.Linq.Dynamic.Core" Version="1.0.9" />
+    <PackageReference Include="System.Security.Principal.Windows" Version="4.5.1" />
   </ItemGroup>
 </Project>
