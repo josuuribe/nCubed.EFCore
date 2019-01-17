@@ -21,7 +21,16 @@ namespace nCubed.EFCore.Extensions
         private static readonly FieldInfo DataBaseField = QueryCompilerTypeInfo.DeclaredFields.Single(x => x.Name == "_database");
         private static readonly PropertyInfo DependenciesProperty = typeof(Database).GetTypeInfo().GetDeclaredProperty("Dependencies");
 
-
+        /// <summary>
+        /// SQL "between" implementation, it adds a between constraint to existing query.
+        /// </summary>
+        /// <typeparam name="TSource">Entity to use.</typeparam>
+        /// <typeparam name="TKey">Between property to use.</typeparam>
+        /// <param name="source">Query with original data.</param>
+        /// <param name="property">Property to be used in between command.</param>
+        /// <param name="low">Minimun value.</param>
+        /// <param name="high">Maximun value.</param>
+        /// <returns></returns>
         public static IQueryable<TSource> Between<TSource, TKey>(this IQueryable<TSource> source, Expression<Func<TSource, TKey>> property, TKey low, TKey high) where TKey : IComparable<TKey>
         {
             var sourceParameter = Expression.Parameter(typeof(TSource));

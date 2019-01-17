@@ -4,12 +4,18 @@ using System.Text;
 using System.Linq;
 using nCubed.EFCore.Behaviours.Auditable;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace nCubed.EFCore.Extensions
 {
     public static class AuditExtensions
     {
-        public static void FillAudit(this Microsoft.EntityFrameworkCore.ChangeTracking.ChangeTracker changeTracker, Behaviours.Auditable.Auditable auditable = null)
+        /// <summary>
+        /// Fills database with audit information.
+        /// </summary>
+        /// <param name="changeTracker">Change tracker to get modified entities.</param>
+        /// <param name="auditable">Audit configuration information to use.</param>
+        public static void FillAudit(this ChangeTracker changeTracker, Auditable auditable = null)
         {
             auditable = auditable ?? new Auditable();
             foreach (var entry in changeTracker.Entries().Where(e => e.State == EntityState.Added || e.State == EntityState.Modified))
@@ -35,8 +41,12 @@ namespace nCubed.EFCore.Extensions
                 }
             }
         }
-
-        public static void CreateAudit(this Microsoft.EntityFrameworkCore.ModelBuilder modelBuilder, Behaviours.Auditable.Auditable auditable = null)
+        /// <summary>
+        /// Creates all relevant columns in database to store audit information.
+        /// </summary>
+        /// <param name="modelBuilder">ModelBuilder in use to create required columns.</param>
+        /// <param name="auditable">Audit configuration information to use.</param>
+        public static void CreateAudit(this ModelBuilder modelBuilder, Auditable auditable = null)
         {
             auditable = auditable ?? new Auditable();
             foreach (var entity in modelBuilder.Model.GetEntityTypes().Where(x => typeof(IAuditable).IsAssignableFrom(x.ClrType)))
