@@ -1,10 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Linq;
-using nCubed.EFCore.Behaviours.Auditable;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+using nCubed.EFCore.Behaviours.Auditable;
+using nCubed.EFCore.Repositories;
+using System;
+using System.Linq;
 
 namespace nCubed.EFCore.Extensions
 {
@@ -13,53 +12,63 @@ namespace nCubed.EFCore.Extensions
         /// <summary>
         /// Fills database with audit information.
         /// </summary>
-        /// <param name="changeTracker">Change tracker to get modified entities.</param>
-        /// <param name="auditable">Audit configuration information to use.</param>
-        public static void FillAudit(this ChangeTracker changeTracker, Auditable auditable = null)
+        /// <param name="changeTracker">Change tracker that stores the entities with audit information.</param>
+        /// <param name="audit">Audit objet to use.</param>
+        public static void Fill(this ChangeTracker changeTracker, IAudit audit)
         {
-            auditable = auditable ?? new Auditable();
-            foreach (var entry in changeTracker.Entries().Where(e => e.State == EntityState.Added || e.State == EntityState.Modified))
+            if (audit == null)
             {
-                if (entry.Entity is IAuditable)
-                {
-                    switch(entry.State)
-                    {
-                        case EntityState.Added:
-                            if (!String.IsNullOrEmpty(auditable.CreatedByName))
-                                entry.Property(auditable.CreatedByName).CurrentValue = auditable.CreatedByAction();
-                            if (!String.IsNullOrEmpty(auditable.CreatedAtName))
-                                entry.Property(auditable.CreatedAtName).CurrentValue = auditable.CreatedAtAction();
-                            break;
-                        case EntityState.Deleted:
-                        case EntityState.Modified:
-                            if (!String.IsNullOrEmpty(auditable.UpdatedByName))
-                                entry.Property(auditable.UpdatedByName).CurrentValue = auditable.UpdatedByAction();
-                            if (!String.IsNullOrEmpty(auditable.UpdatedAtName))
-                                entry.Property(auditable.UpdatedAtName).CurrentValue = auditable.UpdatedAtAction();
-                            break;
-                    }
-                }
+                throw new ArgumentNullException($"{nameof(audit)}");
             }
+
+            audit.Fill(changeTracker);
         }
         /// <summary>
-        /// Creates all relevant columns in database to store audit information.
+        /// Creates all relevant columns for auditing, if not Audit object specified a new one will be created, the default column names and values are:
+        /// CREATED_AT using DateTime.UtcNow
+        /// CREATED_BY using WindowsIdentity.GetCurrent().Name
+        /// UPDATED_AT using DateTime.UtcNow
+        /// UPDATED_BY using WindowsIdentity.GetCurrent().Name
         /// </summary>
-        /// <param name="modelBuilder">ModelBuilder in use to create required columns.</param>
-        /// <param name="auditable">Audit configuration information to use.</param>
-        public static void CreateAudit(this ModelBuilder modelBuilder, Auditable auditable = null)
+        /// <param name="modelBuilder">Model builder that created the context.</param>
+        /// <param name="audit">Audit objet to use.</param>
+        /// <returns>The audit.</returns>
+        public static IAudit UseAudit(this ModelBuilder modelBuilder, IAudit audit = null)
         {
-            auditable = auditable ?? new Auditable();
-            foreach (var entity in modelBuilder.Model.GetEntityTypes().Where(x => typeof(IAuditable).IsAssignableFrom(x.ClrType)))
+            return audit ?? new Audit(modelBuilder);
+        }
+        /// <summary>
+        /// Gets the audit date (Created or Updated).
+        /// </summary>
+        /// <param name="repository">The repository that hosts this entity.</param>
+        /// <param name="entity">Entity with Audit information.</param>
+        /// <param name="columnName">Date column name with audit information.</param>
+        /// <returns>Audit DateTime.</returns>
+        public static DateTime GetAuditDate(this IRepository repository, IAuditable entity, string columnName)
+        {
+            if (repository.UnitOfWork.Entry(entity).Properties.FirstOrDefault(x => x.Metadata.Name == columnName) == null)
             {
-                if (!String.IsNullOrEmpty(auditable.CreatedByName))
-                    entity.AddProperty(auditable.CreatedByName, typeof(string)).SetMaxLength(50);
-                if (!String.IsNullOrEmpty(auditable.CreatedAtName))
-                    entity.AddProperty(auditable.CreatedAtName, typeof(DateTime));
-                if (!String.IsNullOrEmpty(auditable.UpdatedByName))
-                    entity.AddProperty(auditable.UpdatedByName, typeof(string)).SetMaxLength(50);
-                if (!String.IsNullOrEmpty(auditable.UpdatedAtName))
-                    entity.AddProperty(auditable.UpdatedAtName, typeof(DateTime?));
+                throw new ArgumentException($"Column name '{columnName}' does not exist.");
             }
+
+            bool b = DateTime.TryParse(repository.UnitOfWork.Entry(entity).Property(columnName).CurrentValue?.ToString(), out DateTime dateTime);
+            return b ? dateTime : DateTime.MinValue;
+        }
+        /// <summary>
+        /// Gets the user that created or updated this row.
+        /// </summary>
+        /// <param name="repository">The repository that hosts this entity.</param>
+        /// <param name="entity">Entity with Audit information.</param>
+        /// <param name="columnName">Date column name with audit information.</param>
+        /// <returns>Audit DateTime.</returns>
+        public static string GetAuditUser(this IRepository repository, IAuditable entity, string columnName)
+        {
+            if (repository.UnitOfWork.Entry(entity).Properties.FirstOrDefault(x => x.Metadata.Name == columnName) == null)
+            {
+                throw new ArgumentException($"Column name '{columnName}' does not exist.");
+            }
+
+            return repository.UnitOfWork.Entry(entity).Property(columnName).CurrentValue?.ToString();
         }
     }
 }

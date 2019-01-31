@@ -9,6 +9,32 @@ using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace nCubed.EFCore.Repositories
 {
+    public enum State
+    {
+        //
+        // Summary:
+        //     The entity is not being tracked by the context.
+        Detached = 0,
+        //
+        // Summary:
+        //     The entity is being tracked by the context and exists in the database. Its property
+        //     values have not changed from the values in the database.
+        Unchanged = 1,
+        //
+        // Summary:
+        //     The entity is being tracked by the context and exists in the database. It has
+        //     been marked for deletion from the database.
+        Deleted = 2,
+        //
+        // Summary:
+        //     The entity is being tracked by the context and exists in the database. Some or
+        //     all of its property values have been modified.
+        Modified = 3,
+        //
+        // Summary:
+        //     The entity is being tracked by the context but does not yet exist in the database.
+        Added = 4
+    }
     public interface IUnitOfWork : IDisposable
     {
         /// <summary>
@@ -42,21 +68,6 @@ namespace nCubed.EFCore.Repositories
         /// </summary>
         void Reset();
         /// <summary>
-        /// Get all entities that have been modified and are going to be updated in database.
-        /// </summary>
-        /// <returns>All entities to be updated.</returns>
-        IEnumerable GetModifiedEntities();
-        /// <summary>
-        /// Get all entities that have been added and are going to be inserted in database.
-        /// </summary>
-        /// <returns>All entities to be added.</returns>
-        IEnumerable GetAddedEntities();
-        /// <summary>
-        /// Get all entities that have been deleted and are going to be removed from database.
-        /// </summary>
-        /// <returns>All entities to be added.</returns>
-        IEnumerable GetDeletedEntities();
-        /// <summary>
         /// Get entity set for given type.
         /// </summary>
         /// <typeparam name="TEntity">Entity set type.</typeparam>
@@ -76,11 +87,5 @@ namespace nCubed.EFCore.Repositories
         /// <param name="parameters">Parameters to use in command.</param>
         /// <returns>int value with all affected rows.</returns>
         int ExecuteCommand(string sqlCommand, params object[] parameters);
-        /// <summary>
-        /// The context in use, useful for extra actions not covered by actual API version.
-        /// </summary>
-        /// <typeparam name="TContext">Context type.</typeparam>
-        /// <returns>The context.</returns>
-        TContext Context<TContext>() where TContext : DbContext;
     }
 }

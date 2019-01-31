@@ -12,7 +12,7 @@ using System.Linq;
 using nCubed.EFCore.Test.Fakes;
 using nCubed.EFCore.Test.Repositories.Fakes;
 
-namespace nCubed.EFCore.Test.EntityFramework
+namespace nCubed.EFCore.Test.Utils
 {
     public class Pagination : Context
     {
@@ -34,7 +34,7 @@ namespace nCubed.EFCore.Test.EntityFramework
 
             customerRepository = new CustomerRepository(new ProjectsContext(dbContextOptions));
 
-            customerRepository.AddRange(customers);
+            customerRepository.Add(customers);
             customerRepository.UnitOfWork.Commit();
         }
 

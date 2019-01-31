@@ -11,7 +11,7 @@ using nCubed.EFCore.Test.Repositories.Fakes;
 using Microsoft.EntityFrameworkCore.Metadata;
 using FluentAssertions;
 
-namespace nCubed.EFCore.Test.EntityFramework
+namespace nCubed.EFCore.Test.DataAccess
 {
     public class Queryable : Context
     {

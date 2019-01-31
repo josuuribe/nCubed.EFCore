@@ -1,35 +1,44 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.Extensions.Configuration;
-using System;
-using System.ComponentModel.DataAnnotations;
-using System.Configuration;
-using System.Linq;
-using System.Security.Principal;
-using System.IO;
-using Microsoft.Extensions.Configuration.Json;
-using System.Data.Common;
-using System.Collections.Generic;
 using nCubed.EFCore.Repositories;
 using nCubed.EFCore.Test.Entities;
 using nCubed.EFCore.Test.Infrastructure.Mappings;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Text;
+using nCubed.EFCore.Behaviours.Auditable;
 using nCubed.EFCore.Extensions;
 
 namespace nCubed.EFCore.Test.Fakes
 {
-    public class ProjectsContext : UnitOfWork
+    public class ProjectsAuditingContext: UnitOfWork
     {
+        internal static IAudit Audit { get; set; }
         public DbSet<Resource> Resources { get; private set; }
         public DbSet<Project> Projects { get; private set; }
         public DbSet<Customer> Customers { get; private set; }
         public DbSet<Technology> Technologies { get; private set; }
 
-        public ProjectsContext(DbContextOptions<ProjectsContext> options) : base(options)
+        /*
+           public ProjectsContext(string connectionString) : base(GetOptions(connectionString))
+           {
+           }
+
+
+           private static DbContextOptions GetOptions(string connectionString)
+           {
+               var builder = new DbContextOptionsBuilder();
+               return builder.UseSqlServer(connectionString, b => b.MigrationsAssembly("UnitTests")).Options;
+           }
+       */
+
+        public ProjectsAuditingContext(DbContextOptions<ProjectsAuditingContext> options) : base(options)
         {
         }
 
 
-        public ProjectsContext() : base()
+        public ProjectsAuditingContext() : base()
         {
 
         }
@@ -46,8 +55,15 @@ namespace nCubed.EFCore.Test.Fakes
                                                 .AddJsonFile("appSettings.json", false);
 
                 var configuration = configurationBuilder.Build();
+                //optionsBuilder.UseSqlServer(configuration["ConnectionStrings:ProjectsContext"]);
             }
         }
+
+        //private static DbContextOptions GetOptions(string connectionString)
+        //{
+        //    var builder = new DbContextOptionsBuilder();
+        //    return builder.UseSqlServer(connectionString, b => b.MigrationsAssembly("UnitTests")).Options;
+        //}
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -58,10 +74,13 @@ namespace nCubed.EFCore.Test.Fakes
             modelBuilder.ApplyConfiguration(new ResourceMapping());
             modelBuilder.ApplyConfiguration(new TechnologyMapping());
             modelBuilder.ApplyConfiguration(new TechnologyResourceMapping());
+
+            Audit = modelBuilder.UseAudit(Audit).Build();
         }
 
         public override int SaveChanges()
         {
+            ChangeTracker.Fill(Audit);
             return base.SaveChanges();
         }
     }

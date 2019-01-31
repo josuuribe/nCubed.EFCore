@@ -12,7 +12,7 @@ using System.Linq;
 using nCubed.EFCore.Test.Fakes;
 using nCubed.EFCore.Test.Repositories.Fakes;
 
-namespace nCubed.EFCore.Test.EntityFramework
+namespace nCubed.EFCore.Test.DataAccess
 {
     public class Repository : Context, IDisposable
     {
@@ -73,7 +73,7 @@ namespace nCubed.EFCore.Test.EntityFramework
 
         [Fact]
         [Trait("Command", "Repository")]
-        public void TestDelete()
+        public void TestAddEntity()
         {
             ContactInformation contactInformation1 = new ContactInformation() { Phone = "phone", Email = "demo@demo.es" };
             var customer = new Customer() { Name = "Customer1", ContactInformation = contactInformation1 };
@@ -82,7 +82,63 @@ namespace nCubed.EFCore.Test.EntityFramework
             customerRepository.UnitOfWork.Commit();
 
             var customerRepo = customerRepository.Find(1L);
-            customerRepository.Delete(customerRepo);
+
+            customerRepo.Should().NotBeNull();
+            customerRepo.Name.Should().Be("Customer1");
+        }
+
+        [Fact]
+        [Trait("Command", "Repository")]
+        public void TestAddEntities()
+        {
+            ContactInformation contactInformation1 = new ContactInformation() { Phone = "phone", Email = "demo@demo.es" };
+            var customer = new Customer() { Name = "Customer1", ContactInformation = contactInformation1 };
+
+            customerRepository.Add(customer);
+            customerRepository.UnitOfWork.Commit();
+
+            var customerRepo1 = customerRepository.Find(1L);
+            var customerRepo2 = customerRepository.Find(1L);
+
+            customerRepo1.Should().NotBeNull();
+            customerRepo2.Name.Should().Be("Customer1");
+            customerRepo1.Should().NotBeNull();
+            customerRepo2.Name.Should().Be("Customer1");
+        }
+
+        [Fact]
+        [Trait("Command", "Repository")]
+        public void TestDeleteEntity()
+        {
+            ContactInformation contactInformation1 = new ContactInformation() { Phone = "phone", Email = "demo@demo.es" };
+            var customer1 = new Customer() { Name = "Customer1", ContactInformation = contactInformation1 };
+
+            customerRepository.Add(customer1);
+            customerRepository.UnitOfWork.Commit();
+
+            var customerRepo1 = customerRepository.Find(1L);
+            customerRepository.Delete(customerRepo1);
+            customerRepository.UnitOfWork.Commit();
+            var all = customerRepository.Set();
+
+            all.Should().BeEmpty();
+        }
+
+        [Fact]
+        [Trait("Command", "Repository")]
+        public void TestDeleteEntities()
+        {
+            ContactInformation contactInformation1 = new ContactInformation() { Phone = "phone", Email = "demo@demo.es" };
+            var customer1 = new Customer() { Name = "Customer1", ContactInformation = contactInformation1 };
+            ContactInformation contactInformation2 = new ContactInformation() { Phone = "phone", Email = "demo@demo.es" };
+            var customer2 = new Customer() { Name = "Customer2", ContactInformation = contactInformation2 };
+
+            customerRepository.Add(customer1, customer2);
+            customerRepository.UnitOfWork.Commit();
+
+            var customerRepo1 = customerRepository.Find(1L);
+            var customerRepo2 = customerRepository.Find(2L);
+            customerRepository.Delete(customerRepo1, customerRepo2);
             customerRepository.UnitOfWork.Commit();
             var all = customerRepository.Set();
 
@@ -99,7 +155,7 @@ namespace nCubed.EFCore.Test.EntityFramework
                 new Customer() { Name = "Customer1", ContactInformation = contactInformation1 },
                 new Customer() { Name = "Customer2", ContactInformation = contactInformation2 },};
 
-            customerRepository.AddRange(customers);
+            customerRepository.Add(customers);
             customerRepository.UnitOfWork.Commit();
 
             var customersRepo = customerRepository.Set();
@@ -120,7 +176,7 @@ namespace nCubed.EFCore.Test.EntityFramework
             var customer2 = new Customer() { Name = "Customer2", ContactInformation = contactInformation2 };
 
 
-            customerRepository.Apply(customer1, customer2);
+            customerRepository.Merge(customer1, customer2);
 
             customer1.Name.Should().Be(customer2.Name, "Different name.");
             customer1.ContactInformation.Phone.Should().NotBe(customer2.ContactInformation.Phone, "Same name.");
@@ -165,7 +221,7 @@ namespace nCubed.EFCore.Test.EntityFramework
             customer1.Name = "Name changed";
             customer1.ContactInformation.Email = "wrong email";
             customer1.ContactInformation.Phone = "wrong phone";
-            customerRepository.Reset(customer1);
+            customerRepository.Refresh(customer1);
 
             customer1.Name.Should().Be("Customer1", "Different name.");
             customer1.ContactInformation.Phone.Should().NotBe("phone1", "Same telephone number");
@@ -194,20 +250,6 @@ namespace nCubed.EFCore.Test.EntityFramework
             var entityFromDatabase = customerRepository.Source(customer1);
 
             entityFromDatabase.Name.Should().Be(customerChangedInAnotherThread.Name, "Different name");
-        }
-
-        [Fact]
-        [Trait("Command", "Repository")]
-        public void TestAttach()
-        {
-            ContactInformation contactInformation1 = new ContactInformation() { Phone = "phone1", Email = "demo1@demo.es" };
-            var customer1 = new Customer() { Name = "Customer1", ContactInformation = contactInformation1 };
-
-            customerRepository.Attach(customer1);
-
-            customerRepository.UnitOfWork.Local<Customer>().Should().NotBeEmpty()
-                .And.HaveCount(1)
-                .And.ContainItemsAssignableTo<Customer>();
         }
 
         [Fact]
@@ -249,60 +291,9 @@ namespace nCubed.EFCore.Test.EntityFramework
 
             customerRepository.Add(customer);
             customerRepository.UnitOfWork.Commit();
-            var exists = customerRepository.Exists(customer, 1L);
+            var exists = customerRepository.Exists(1L);
 
             exists.Should().Be(true);
-        }
-
-        [Fact]
-        [Trait("Command", "Repository")]
-        public void TestMarkAsAdded()
-        {
-            ContactInformation contactInformation1 = new ContactInformation() { Phone = "phone1", Email = "demo1@demo.es" };
-            var customer = new Customer() { Name = "Customer1", ContactInformation = contactInformation1 };
-
-            customerRepository.Add(customer);
-            var updates = customerRepository.GetAdded();
-
-            updates.Should().NotBeEmpty()
-                .And.HaveCount(1)
-                .And.OnlyContain((o) => (o == customer));
-        }
-
-        [Fact]
-        [Trait("Command", "Repository")]
-        public void TestMarkAsModified()
-        {
-            ContactInformation contactInformation1 = new ContactInformation() { Phone = "phone1", Email = "demo1@demo.es" };
-            var customer = new Customer() { Name = "Customer1", ContactInformation = contactInformation1 };
-
-            customerRepository.Add(customer);
-            customerRepository.UnitOfWork.Commit();
-            var customerRepo = customerRepository.Find(1L);
-            customerRepo.Name = "updated";
-            var updates = customerRepository.GetModified();
-
-            updates.Should().NotBeEmpty()
-                .And.HaveCount(1)
-                .And.OnlyContain((o) => (o == customer));
-        }
-
-        [Fact]
-        [Trait("Command", "Repository")]
-        public void TestMarkAsDeleted()
-        {
-            ContactInformation contactInformation1 = new ContactInformation() { Phone = "phone1", Email = "demo1@demo.es" };
-            var customer = new Customer() { Name = "Customer1", ContactInformation = contactInformation1 };
-
-            customerRepository.Add(customer);
-            customerRepository.UnitOfWork.Commit();
-            var customerRepo = customerRepository.Find(1L);
-            customerRepository.Delete(customerRepo);
-            var updates = customerRepository.GetDeleted();
-
-            updates.Should().NotBeEmpty()
-                .And.HaveCount(1)
-                .And.OnlyContain((o) => (o == customer));
         }
 
         public void Dispose()

@@ -1,35 +1,30 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Design;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.Extensions.Configuration;
-using System;
-using System.ComponentModel.DataAnnotations;
-using System.Configuration;
-using System.Linq;
-using System.Security.Principal;
-using System.IO;
-using Microsoft.Extensions.Configuration.Json;
-using System.Data.Common;
-using System.Collections.Generic;
+using nCubed.EFCore.Behaviours.Auditable;
+using nCubed.EFCore.Extensions;
 using nCubed.EFCore.Repositories;
 using nCubed.EFCore.Test.Entities;
 using nCubed.EFCore.Test.Infrastructure.Mappings;
-using nCubed.EFCore.Extensions;
+using System.IO;
 
 namespace nCubed.EFCore.Test.Fakes
 {
-    public class ProjectsContext : UnitOfWork
+    public class ProjectsNullAuditingContext : UnitOfWork
     {
+        internal IAudit Audit { get; set; }
+
         public DbSet<Resource> Resources { get; private set; }
         public DbSet<Project> Projects { get; private set; }
         public DbSet<Customer> Customers { get; private set; }
         public DbSet<Technology> Technologies { get; private set; }
 
-        public ProjectsContext(DbContextOptions<ProjectsContext> options) : base(options)
+        public ProjectsNullAuditingContext(DbContextOptions<ProjectsNullAuditingContext> options) : base(options)
         {
         }
 
 
-        public ProjectsContext() : base()
+        public ProjectsNullAuditingContext() : base()
         {
 
         }
@@ -58,10 +53,16 @@ namespace nCubed.EFCore.Test.Fakes
             modelBuilder.ApplyConfiguration(new ResourceMapping());
             modelBuilder.ApplyConfiguration(new TechnologyMapping());
             modelBuilder.ApplyConfiguration(new TechnologyResourceMapping());
+
+            if (Audit == null)
+            {
+                Audit = (null as ModelBuilder).UseAudit().Build();
+            }
         }
 
         public override int SaveChanges()
         {
+            (null as ChangeTracker).Fill(Audit);
             return base.SaveChanges();
         }
     }

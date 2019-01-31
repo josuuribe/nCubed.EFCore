@@ -20,6 +20,10 @@
     <FileVersion>1.0.0.0</FileVersion>
     <Version>1.0.6</Version>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Behaviours\Auditable\Auditable.cs" />
+  </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="2.2.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="2.2.0" />

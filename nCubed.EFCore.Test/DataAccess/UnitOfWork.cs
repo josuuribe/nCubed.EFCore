@@ -10,7 +10,7 @@ using FluentAssertions;
 using System.Linq;
 using nCubed.EFCore.Test.Repositories.Fakes;
 
-namespace nCubed.EFCore.Test.EntityFramework
+namespace nCubed.EFCore.Test.DataAccess
 {
     public class UnitOfWork : Context
     {
@@ -106,7 +106,7 @@ namespace nCubed.EFCore.Test.EntityFramework
 
             var customers = new List<Customer>() { customer1, customer2 };
 
-            customerRepository.AddRange(customers);
+            customerRepository.Add(customers);
             customerRepository.UnitOfWork.Commit();
 
             var customerRepos = customerRepository.UnitOfWork.ExecuteQuery<Customer>("SELECT CUSTOMER_ID as CustomerId, NAME as Name, PHONE as Phone, EMAIL as email FROM CUSTOMERS");
@@ -125,10 +125,10 @@ namespace nCubed.EFCore.Test.EntityFramework
             var customer = new Customer() { Name = "Customer1", ContactInformation = contactInformation1 };
 
             customerRepository.Add(customer);
-            var updates = projectsContext.GetAddedEntities();
+            var updates = customerRepository.UnitOfWork.GetAdded<Customer>();
 
             updates.Should().NotBeEmpty()
-                .And.HaveCount(2);
+                .And.HaveCount(1);
         }
 
         [Fact]
@@ -138,11 +138,11 @@ namespace nCubed.EFCore.Test.EntityFramework
             ContactInformation contactInformation1 = new ContactInformation() { Phone = "phone1", Email = "demo1@demo.es" };
             var customer = new Customer() { Name = "Customer1", ContactInformation = contactInformation1 };
 
-            customerRepository.Track(customer);
+            customerRepository.UnitOfWork.Update(customer);
             customerRepository.UnitOfWork.Commit();
             var customerRepo = customerRepository.Find(1L);
             customerRepo.Name = "updated";
-            var updates = projectsContext.GetModifiedEntities();
+            var updates = projectsContext.GetModified<Customer>();
 
             updates.Should().NotBeEmpty()
                 .And.HaveCount(1);
@@ -155,14 +155,46 @@ namespace nCubed.EFCore.Test.EntityFramework
             ContactInformation contactInformation1 = new ContactInformation() { Phone = "phone1", Email = "demo1@demo.es" };
             var customer = new Customer() { Name = "Customer1", ContactInformation = contactInformation1 };
 
-            customerRepository.Track(customer);
+            customerRepository.UnitOfWork.Update(customer);
             customerRepository.UnitOfWork.Commit();
             var customerRepo = customerRepository.Find(1L);
             customerRepository.Delete(customerRepo);
-            var updates = projectsContext.GetDeletedEntities();
+            var updates = projectsContext.GetDeleted<Customer>();
 
             updates.Should().NotBeEmpty()
                 .And.HaveCount(1);
+        }
+
+        [Fact]
+        [Trait("Command", "UnitOfWork")]
+        public void TestAttach()
+        {
+            ContactInformation contactInformation1 = new ContactInformation() { Phone = "phone1", Email = "demo1@demo.es" };
+            var customer1 = new Customer() { Name = "Customer1", ContactInformation = contactInformation1 };
+
+            customerRepository.UnitOfWork.Attach(customer1);
+
+            customerRepository.UnitOfWork.Local<Customer>().Should().NotBeEmpty()
+                .And.HaveCount(1)
+                .And.ContainItemsAssignableTo<Customer>();
+        }
+
+        [Fact]
+        [Trait("Command", "UnitOfWork")]
+        public void TestRollback()
+        {
+            ContactInformation contactInformation1 = new ContactInformation() { Phone = "phone1", Email = "demo1@demo.es" };
+            var customer1 = new Customer() { Name = "Customer1", ContactInformation = contactInformation1 };
+
+            customerRepository.Add(customer1);
+            customerRepository.UnitOfWork.Commit();
+            customer1.Name = "CustomerChanged";
+            customerRepository.UnitOfWork.Rollback();
+
+            customerRepository.UnitOfWork.Local<Customer>().Should().NotBeEmpty()
+                .And.HaveCount(1)
+                .And.ContainItemsAssignableTo<Customer>();
+            customer1.Name.Should().Be("Customer1");
         }
     }
 }

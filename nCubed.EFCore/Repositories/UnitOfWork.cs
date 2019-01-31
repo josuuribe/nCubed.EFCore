@@ -9,6 +9,7 @@ using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
+using System.Threading.Tasks;
 
 namespace nCubed.EFCore.Repositories
 {
@@ -24,22 +25,27 @@ namespace nCubed.EFCore.Repositories
 
         }
 
-        public void Commit()
+        public virtual Task CommitAsync()
         {
-            base.SaveChangesAsync();
+            return this.SaveChangesAsync();
         }
 
-        public IEnumerable Local()
+        public virtual void Commit()
+        {
+            this.SaveChanges();
+        }
+
+        public virtual IEnumerable Local()
         {
             return ChangeTracker.Entries().Select(x => x.Entity);
         }
 
-        public IEnumerable<TEntity> Local<TEntity>() where TEntity : class
+        public virtual IEnumerable<TEntity> Local<TEntity>() where TEntity : class
         {
             return this.Set<TEntity>().Local;
         }
 
-        public IQueryable<TEntity> LocalOrDatabase<TEntity>(Expression<Func<TEntity, bool>> expression) where TEntity : class
+        public virtual IQueryable<TEntity> LocalOrDatabase<TEntity>(Expression<Func<TEntity, bool>> expression) where TEntity : class
         {
             var localResults = Local<TEntity>().Where(expression.Compile());
             if (localResults.Any())
@@ -49,7 +55,7 @@ namespace nCubed.EFCore.Repositories
             return this.Set<TEntity>().Where(expression);
         }
 
-        public void Rollback()
+        public virtual void Rollback()
         {
             foreach (var entry in ChangeTracker.Entries())
             {
@@ -58,7 +64,7 @@ namespace nCubed.EFCore.Repositories
             }
         }
 
-        public IEnumerable<TEntity> ExecuteQuery<TEntity>(string sqlQuery) where TEntity : class, new()
+        public virtual IEnumerable<TEntity> ExecuteQuery<TEntity>(string sqlQuery) where TEntity : class, new()
         {
             List<TEntity> entities = new List<TEntity>();
             try
@@ -98,12 +104,12 @@ namespace nCubed.EFCore.Repositories
             return entities;
         }
 
-        public int ExecuteCommand(string sqlCommand, params object[] parameters)
+        public virtual int ExecuteCommand(string sqlCommand, params object[] parameters)
         {
             return this.Database.ExecuteSqlCommand(sqlCommand, parameters);
         }
 
-        public void Reset()
+        public virtual void Reset()
         {
             while (ChangeTracker.Entries().Count() > 0)
             {
@@ -113,26 +119,6 @@ namespace nCubed.EFCore.Repositories
                 this.Entry(entry.Entity).CurrentValues.SetValues(originalValues);
                 entry.State = EntityState.Detached;
             }
-        }
-
-        public TContext Context<TContext>() where TContext : DbContext
-        {
-            return this as TContext;
-        }
-
-        public IEnumerable GetModifiedEntities()
-        {
-            return this.ChangeTracker.Entries().Where(e => e.State == EntityState.Modified).Select(o => o.Entity);
-        }
-
-        public IEnumerable GetAddedEntities()
-        {
-            return this.ChangeTracker.Entries().Where(e => e.State == EntityState.Added).Select(o => o.Entity);
-        }
-
-        public IEnumerable GetDeletedEntities()
-        {
-            return this.ChangeTracker.Entries().Where(e => e.State == EntityState.Deleted).Select(o => o.Entity);
         }
     }
 }

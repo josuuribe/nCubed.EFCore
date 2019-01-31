@@ -14,13 +14,6 @@ namespace nCubed.EFCore.Extensions
 {
     public static class QueryableExtensions
     {
-        private static readonly TypeInfo QueryCompilerTypeInfo = typeof(QueryCompiler).GetTypeInfo();
-        private static readonly FieldInfo QueryCompilerField = typeof(EntityQueryProvider).GetTypeInfo().DeclaredFields.First(x => x.Name == "_queryCompiler");
-        private static readonly PropertyInfo NodeTypeProviderField = QueryCompilerTypeInfo.DeclaredProperties.Single(x => x.Name == "NodeTypeProvider");
-        private static readonly MethodInfo CreateQueryParserMethod = QueryCompilerTypeInfo.DeclaredMethods.First(x => x.Name == "CreateQueryParser");
-        private static readonly FieldInfo DataBaseField = QueryCompilerTypeInfo.DeclaredFields.Single(x => x.Name == "_database");
-        private static readonly PropertyInfo DependenciesProperty = typeof(Database).GetTypeInfo().GetDeclaredProperty("Dependencies");
-
         /// <summary>
         /// SQL "between" implementation, it adds a between constraint to existing query.
         /// </summary>
@@ -44,6 +37,5 @@ namespace nCubed.EFCore.Extensions
             var whereCallExpression = Expression.Call(typeof(Queryable), "Where", new Type[] { source.ElementType }, source.Expression, Expression.Lambda<Func<TSource, Boolean>>(andExpression, new ParameterExpression[] { parameter }));
             return source.Provider.CreateQuery<TSource>(whereCallExpression);
         }
-
     }
 }
