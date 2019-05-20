@@ -190,7 +190,7 @@ namespace nCubed.EFCore.Test.Utils
             user.Should().NotBeNull().And.Equals(System.Security.Principal.WindowsIdentity.GetCurrent().Name);
         }
 
-        public void Dispose()
+        private void Dispose()
         {
             customerRepository1.Dispose();
             customerRepository2.Dispose();
