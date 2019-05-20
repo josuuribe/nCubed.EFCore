@@ -6,7 +6,7 @@
     <Authors>Josu Uribe</Authors>
     <Company>GFI</Company>
     <PackageProjectUrl>https://josuuribe.github.io/nCubedCore/</PackageProjectUrl>
-    <PackageLicenseUrl>http://www.apache.org/licenses/LICENSE-2.0</PackageLicenseUrl>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <RepositoryUrl>https://github.com/josuuribe/nCubedCore</RepositoryUrl>
     <RepositoryType>GitHub</RepositoryType>
     <NeutralLanguage />
