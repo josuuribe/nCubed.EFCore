@@ -2,4 +2,4 @@
 Core version for nCubed  
 
 
-[![Build status](https://gfiprototype.visualstudio.com/C%C3%BAmulo/_apis/build/status/NuGet%20.net%20standard%20library%20(.net%20Core))](https://gfiprototype.visualstudio.com/C%C3%BAmulo/_build/latest?definitionId=4)
+[![Build status](https://dev.azure.com/raraavis/nCubed/_apis/build/status/nCubed.Core-.NET%20Standard)](https://dev.azure.com/raraavis/nCubed/_build/latest?definitionId=3)
